@@ -1,0 +1,76 @@
+package Controller;
+
+import Db.Database;
+import Model.Note;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class NoteController {
+
+    public List<Note> listByUser(int usuarioId) {
+        List<Note> notas = new ArrayList<>();
+        try (Connection conn = Database.getConnection()) {
+            String sql = "SELECT * FROM notas WHERE usuario_id=?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, usuarioId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+              notas.add(new Note(
+    rs.getInt("id"),
+rs.getInt("usuario_id"),
+rs.getString("titulo"),
+rs.getString("conteudo"),
+rs.getTimestamp("criado_em"),
+rs.getTimestamp("atualizado_em")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return notas;
+    }
+
+    public void create(int usuarioId, String titulo, String conteudo) {
+        try (Connection conn = Database.getConnection()) {
+            String sql = "INSERT INTO notas (usuario_id, titulo, conteudo) VALUES (?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, usuarioId);
+            stmt.setString(2, titulo);
+            stmt.setString(3, conteudo);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(int id, String novoTitulo, String novoConteudo) {
+        try (Connection conn = Database.getConnection()) {
+            String sql = "UPDATE notas SET titulo=?, conteudo=?, atualizado_em=CURRENT_TIMESTAMP WHERE id=?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, novoTitulo);
+            stmt.setString(2, novoConteudo);
+            stmt.setInt(3, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete(int id) {
+        try (Connection conn = Database.getConnection()) {
+            String sql = "DELETE FROM notas WHERE id=?";
+       PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+    e.printStackTrace();
+}
+}
+}
+
+}
+}
+}
